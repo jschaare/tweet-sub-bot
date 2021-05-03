@@ -21,7 +21,7 @@ async def subscriber(server_addr, channel_name):
     #    logger.info(msg)
     #return
     while True:
-        msg = await redis.xread(["tweet", "follow"])
+        msg = await redis.xread(["tweet"])
         logger.info(msg)
     return
 
