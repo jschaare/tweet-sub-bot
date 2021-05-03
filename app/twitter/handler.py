@@ -12,7 +12,7 @@ class TwitterHandler():
         auth = tweepy.OAuthHandler(api_key, api_secret)
         auth.set_access_token(access_token, access_token_secret)
         self.api = tweepy.API(auth)
-        self.listener = None
+        self.listener = TwitterListener(self.publish, loop=asyncio.get_event_loop())
         self.stream = None
         self.redis_addr = redis_addr
         self.redis = None
@@ -23,8 +23,6 @@ class TwitterHandler():
     async def run(self):
         logger.info("starting twitter handler")
         await self.start_redis()
-        self.listener = TwitterListener(self.redis_addr, self.tweet_chan)
-        await self.listener.start()
 
         while True:
             msgs = await self._receive()
@@ -64,7 +62,7 @@ class TwitterHandler():
         if self.redis is None:
             logger.error('redis not started')
             return
-        return await self.redis.xread([self.follow_chan], timeout=1000)
+        return await self.redis.xread([self.follow_chan])
 
     def _get_user_id(self, screen_name):
         user = self.api.get_user(screen_name)
@@ -107,7 +105,7 @@ class TwitterHandler():
     def start_stream(self):
         if not self.stream and self.following:
             logger.debug("hi")
-            self.stream = tweepy.Stream(self.api.auth, self.listener)
+            self.stream = tweepy.Stream(self.api.auth, self.listener, retry_420=3 * 60)
             #self.stream.sample(languages=['ja'], is_async=True)
             #self.stream.filter(follow=['455178621'], is_async=True)
             self.stream.filter(follow=self.following.values(), is_async=True)
