@@ -3,6 +3,7 @@ import os
 import tweepy
 import asyncio
 import time
+import argparse
 
 from app.discordbot.bot import Bot
 from app.utils import config
@@ -19,11 +20,7 @@ bot.load_extension("bot.cogs.example")
 bot.run(TOKEN) """
 
 def start_twitter():
-    return
-
-if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    #refactor this
     try:
         cfg = config.get_config()
         consumer_key = cfg['twitter_api_key']
@@ -39,3 +36,24 @@ if __name__ == '__main__':
     finally:
         twhandler.close_stream()
         asyncio.run(twhandler.close_redis())
+    return
+
+def start_discord():
+    cfg = config.get_config()
+    TOKEN = cfg["discord_token"]
+    bot = Bot(command_prefix="+")
+    bot.load_extension("app.discordbot.cogs.twitter")
+
+    bot.run(TOKEN)
+
+options = {
+    'twitter': start_twitter,
+    'discord': start_discord,
+}
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('process')
+
+    args = parser.parse_args()
+    options[args.process]()

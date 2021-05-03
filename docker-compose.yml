@@ -3,15 +3,18 @@ version: "3"
 services:
   twitter-handler:
     image: tweet-sub-bot
-    command: python run.py
+    command: python run.py twitter
     build:
       context: .
       dockerfile: Dockerfile
-  pub:
+  discord-bot:
     image: tweet-sub-bot
-    command: python pub.py
-  sub:
-    image: tweet-sub-bot
-    command: python sub.py
+    command: python run.py discord
+  # pub:
+  #   image: tweet-sub-bot
+  #   command: python pub.py
+  # sub:
+  #   image: tweet-sub-bot
+  #   command: python sub.py
   redis:
     image: "redis:alpine"

@@ -102,9 +102,9 @@ class TwitterHandler():
         if not self.stream and self.following:
             logger.debug("hi")
             self.stream = tweepy.Stream(self.api.auth, self.listener, retry_420=3 * 60)
-            self.stream.sample(languages=['ja'], is_async=True)
+            #self.stream.sample(languages=['ja'], is_async=True)
             #self.stream.filter(follow=['455178621'], is_async=True)
-            #self.stream.filter(follow=self.following.values(), is_async=True)
+            self.stream.filter(follow=self.following.values(), is_async=True)
 
     def close_stream(self):
         if self.stream and self.stream.running:
